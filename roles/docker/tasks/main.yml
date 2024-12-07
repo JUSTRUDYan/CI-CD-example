@@ -1,0 +1,68 @@
+- name: Ensure the required directories and keyring exist
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add Docker GPG key
+  get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Install Docker dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - python3-pip
+      - python3-setuptools
+    state: latest
+    update_cache: true
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+    update_cache: true
+
+# - name: Install Docker Compose
+#   shell: |
+#     curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" -o /usr/local/bin/docker-compose
+#     chmod +x /usr/local/bin/docker-compose
+#   args:
+#     executable: /bin/bash
+
+# - name: Add user to Docker group
+#   user:
+#     name: "{{ ansible_user }}"
+#     groups: docker
+#     append: true
+
+# - name: Restart Docker service
+#   systemd:
+#     name: docker
+#     state: restarted
+#     enabled: true
+
+# - name: Verify Docker installation
+#   command: docker --version
+#   register: docker_version
+
+# - name: Show Docker version
+#   debug:
+#     msg: "Docker version is {{ docker_version.stdout }}"

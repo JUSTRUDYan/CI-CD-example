@@ -1,0 +1,9 @@
+- name: Copy application files
+  copy:
+    src: .
+    dest: /home/{{ ansible_user }}/app/
+
+- name: Run Docker Compose
+  shell: |
+    cd /home/{{ ansible_user }}/app/
+    docker-compose up -d
